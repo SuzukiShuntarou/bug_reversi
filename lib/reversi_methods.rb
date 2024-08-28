@@ -47,7 +47,7 @@ module ReversiMethods
 
     # コピーした盤面にて石の配置を試みて、成功すれば反映する
     copied_board = Marshal.load(Marshal.dump(board))
-    copied_board[pos.col][pos.row] = stone_color
+    copied_board[pos.row][pos.col] = stone_color
 
     turn_succeed = false
     Position::DIRECTIONS.each do |direction|
@@ -65,7 +65,7 @@ module ReversiMethods
     return false if target_pos.stone_color(board) == attack_stone_color
 
     next_pos = target_pos.next_position(direction)
-    if (next_pos.stone_color(board) == attack_stone_color) || turn(board, next_pos, attack_stone_color, direction)
+    if ((next_pos.stone_color(board) == attack_stone_color) || turn(board, next_pos, attack_stone_color, direction)) && board[target_pos.row][target_pos.col] != BLANK_CELL
       board[target_pos.row][target_pos.col] = attack_stone_color
       true
     else
@@ -74,10 +74,20 @@ module ReversiMethods
   end
 
   def finished?(board)
-    !placeable?(board, WHITE_STONE) && !placeable?(board, BLACK_STONE)
+    ( !placeable?(board, WHITE_STONE) && !placeable?(board, BLACK_STONE) ) || full_stone?(board)
+  end
+
+  # 盤面全てに石が埋まった時、trueを返す
+  def full_stone?(board)
+    full_stone = []
+    board.each { |board_rows| full_stone << !board_rows.include?(BLANK_CELL) }
+    full_stone.all?
   end
 
   def placeable?(board, attack_stone_color)
+    # 最短勝利時、盤面に片方の色の石だけとなる。falseを返す
+    return false if ( count_stone(board, WHITE_STONE) == 0 || count_stone(board, BLACK_STONE) == 0 )
+
     board.each_with_index do |cols, row|
       cols.each_with_index do |cell, col|
         next unless cell == BLANK_CELL
