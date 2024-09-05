@@ -65,7 +65,8 @@ module ReversiMethods
     return false if target_pos.stone_color(board) == attack_stone_color
 
     next_pos = target_pos.next_position(direction)
-    if ((next_pos.stone_color(board) == attack_stone_color) || turn(board, next_pos, attack_stone_color, direction)) && board[target_pos.row][target_pos.col] != BLANK_CELL
+    return false if board[target_pos.row][target_pos.col] == BLANK_CELL
+    if (next_pos.stone_color(board) == attack_stone_color) || turn(board, next_pos, attack_stone_color, direction)
       board[target_pos.row][target_pos.col] = attack_stone_color
       true
     else
@@ -74,14 +75,7 @@ module ReversiMethods
   end
 
   def finished?(board)
-    ( !placeable?(board, WHITE_STONE) && !placeable?(board, BLACK_STONE) ) || full_stone?(board)
-  end
-
-  # 盤面全てに石が埋まった時、trueを返す
-  def full_stone?(board)
-    full_stone = []
-    board.each { |board_rows| full_stone << !board_rows.include?(BLANK_CELL) }
-    full_stone.all?
+    !placeable?(board, WHITE_STONE) && !placeable?(board, BLACK_STONE)
   end
 
   def placeable?(board, attack_stone_color)
@@ -96,6 +90,7 @@ module ReversiMethods
         return true if put_stone(board, position.to_cell_ref, attack_stone_color, dry_run: true)
       end
     end
+    return false  # すべての処理をnextした時にfalseを返す
   end
 
   def count_stone(board, stone_color)
