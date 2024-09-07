@@ -79,9 +79,6 @@ module ReversiMethods
   end
 
   def placeable?(board, attack_stone_color)
-    # 最短勝利時、盤面に片方の色の石だけとなる。falseを返す
-    return false if ( count_stone(board, WHITE_STONE) == 0 || count_stone(board, BLACK_STONE) == 0 )
-
     board.each_with_index do |cols, row|
       cols.each_with_index do |cell, col|
         next unless cell == BLANK_CELL
